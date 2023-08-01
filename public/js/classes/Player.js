@@ -1,15 +1,15 @@
 class Player {
-  constructor(x, y, radius, color) {
+  constructor({x, y, radius, color}) {
     this.x = x
     this.y = y
-    this.radius = radius
+    this.radius = radius * window.devicePixelRatio || 1
     this.color = color
   }
 
   draw() {
-    c.beginPath()
-    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false)
-    c.fillStyle = this.color
-    c.fill()
+    ctx.beginPath()
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false)
+    ctx.fillStyle = this.color
+    ctx.fill()
   }
 }

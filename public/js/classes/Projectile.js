@@ -1,5 +1,5 @@
 class Projectile {
-  constructor(x, y, radius, color, velocity) {
+  constructor({x, y, radius, color="white", velocity}) {
     this.x = x
     this.y = y
     this.radius = radius
@@ -8,10 +8,10 @@ class Projectile {
   }
 
   draw() {
-    c.beginPath()
-    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false)
-    c.fillStyle = this.color
-    c.fill()
+    ctx.beginPath()
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false)
+    ctx.fillStyle = this.color
+    ctx.fill()
   }
 
   update() {
