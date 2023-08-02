@@ -20,6 +20,19 @@ socket.on('connect', () => {
   })
 })
 
+socket.on('gameOver', () => {
+  showGameOverMessage();
+});
+
+function showGameOverMessage() {
+  ctx.fillStyle = 'red';
+  ctx.font = '48px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
+  animationId = cancelAnimationFrame(animate)
+
+}
+
 socket.on('updateProjectiles', (backendProjectiles) => {
   for (const id in backendProjectiles) {
     const backendProjectile = backendProjectiles[id];
@@ -56,9 +69,37 @@ socket.on('updatePlayers', (backendPlayers) => {
         x: backendPlayer.x,
         y: backendPlayer.y,
         radius: 10,
-        color: backendPlayer.color
+        color: backendPlayer.color,
       })
+
+      document.querySelector("#playerLabel").innerHTML +=
+      `<div data-id="${id}">${id}: ${backendPlayer.score}</div>`
     } else {
+      document.querySelector(`div[data-id="${id}"]`).innerHTML = 
+      `${id}: ${backendPlayer.score}`
+
+      document.querySelector(`div[data-id="${id}"]`)
+      .setAttribute("data-score" , backendPlayer.score)
+
+      const parentDiv = document.querySelector("#playerLabel")
+      const childDivs = Array.from(parentDiv.querySelectorAll("div"))
+
+      childDivs.sort((a, b) => {
+        const scoreA = Number(a.getAttribute("data-score"))
+        const scoreB = Number(b.getAttribute("data-score"))
+
+        return scoreB - scoreA
+      })
+
+      childDivs.forEach(div => {
+        parentDiv.removeChild(div)
+      })
+      childDivs.forEach(div => {
+        parentDiv.appendChild(div)
+      })
+
+
+
       if (id === socket.id) {
         // if a player already exists
         frontendPlayers[id].x = backendPlayer.x
@@ -83,8 +124,12 @@ socket.on('updatePlayers', (backendPlayers) => {
       }
     }
   }
+
+  // this is where we delete frontendPlayers
   for (const id in frontendPlayers) {
     if (!backendPlayers[id]) {
+      const divToDelete = document.querySelector(`div[data-id="${id}"]`)
+      divToDelete.parentNode.removeChild(divToDelete)
       delete frontendPlayers[id]
     }
   }

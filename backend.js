@@ -25,7 +25,8 @@ io.on('connection', (socket) => {
     x: 500 * Math.random(),
     y: 500 * Math.random(),
     color: `hsl(${360 * Math.random()}, 100%, 50%)`,
-    sequenceNumber: 0
+    sequenceNumber: 0,
+    score: 0
   }
 
   io.emit('updatePlayers', backEndPlayers)
@@ -58,7 +59,6 @@ io.on('connection', (socket) => {
       playerId: socket.id
     }
 
-    console.log(backEndProjectiles)
   })
 
   socket.on('disconnect', (reason) => {
@@ -66,6 +66,8 @@ io.on('connection', (socket) => {
     delete backEndPlayers[socket.id]
     io.emit('updatePlayers', backEndPlayers)
   })
+
+  
   socket.on('keydown', ({ keycode, sequenceNumber }) => {
     backEndPlayers[socket.id].sequenceNumber = sequenceNumber
     switch (keycode) {
@@ -84,7 +86,6 @@ io.on('connection', (socket) => {
     }
   })
 
-  console.log(backEndPlayers)
 })
 
 // backend ticker
@@ -109,7 +110,7 @@ setInterval(() => {
 
     for (const playerId in backEndPlayers) {
       const backEndPlayer = backEndPlayers[playerId]
-
+      //collision detection projectiles and players
       const DISTANCE = Math.hypot(
         backEndProjectiles[id].x - backEndPlayer.x,
         backEndProjectiles[id].y - backEndPlayer.y
@@ -119,8 +120,17 @@ setInterval(() => {
         DISTANCE < PROJECTILE_RADIUS + backEndPlayer.radius &&
         backEndProjectiles[id].playerId !== playerId
       ) {
+        if(backEndPlayers[backEndProjectiles[id].playerId]){
+        backEndPlayers[backEndProjectiles[id].playerId].score ++
+        io.to(playerId).emit('gameOver');
+
+
+
+      }
         delete backEndProjectiles[id]
         delete backEndPlayers[playerId]
+        
+
         break
       }
     }
@@ -131,6 +141,6 @@ setInterval(() => {
 }, 15)
 
 server.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`app listening on port ${port}`)
 })
 console.log('server did load')
